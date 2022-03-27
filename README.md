@@ -1,5 +1,5 @@
 # About
-My homeworks @ otus aqa courses. Each dir = one h/w
+My homeworks @ otus aqa courses. One branch = one h/w
 
 # How to install?
 Clone this git repository: git clone https://github.com/augustsalimov/otus_aqa.git
