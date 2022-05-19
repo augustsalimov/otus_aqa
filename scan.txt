@@ -1,21 +1,20 @@
 Отчёт о состоянии системы:
 
-Пользователи системы: 'david', 'root', '_fpsd', '_spotlight', '_assetcache', '_softwareupdate', '_nsurlsessiond', '_locationd', '_appleevents', '_cmiodalassistants', '_coreaudiod', '_windowserver', '_netbios', '_timed', '_usbmuxd', '_displaypolicyd', '_distnote', '_analyticsd', '_mdnsresponder', '_trustd', '_networkd', '_reportmemoryexception', '_atsserver', '_mysql', '_captiveagent', '_gamecontrollerd', '_hidd', '_iconservices'
-Процессов запущено: 412
+Пользователи системы: 'david', 'root', '_fpsd', '_spotlight', '_assetcache', '_softwareupdate', '_nsurlsessiond', '_coreaudiod', '_locationd', '_appleevents', '_cmiodalassistants', '_windowserver', '_timed', '_usbmuxd', '_displaypolicyd', '_distnote', '_analyticsd', '_mdnsresponder', '_trustd', '_networkd', '_reportmemoryexception', '_atsserver', '_mysql', '_iconservices', '_hidd', '_captiveagent', '_datadetectors', '_netbios', '_gamecontrollerd'
+Процессов запущено: 395
 Пользовательских процессов: 
-david: 249
-root: 121
+david: 235
+root: 116
 _fpsd: 4
 _spotlight: 4
 _assetcache: 3
 _softwareupdate: 3
-_nsurlsessiond: 2
+_nsurlsessiond: 3
+_coreaudiod: 2
 _locationd: 2
 _appleevents: 2
 _cmiodalassistants: 2
-_coreaudiod: 2
 _windowserver: 2
-_netbios: 1
 _timed: 1
 _usbmuxd: 1
 _displaypolicyd: 1
@@ -27,11 +26,13 @@ _networkd: 1
 _reportmemoryexception: 1
 _atsserver: 1
 _mysql: 1
-_captiveagent: 1
-_gamecontrollerd: 1
-_hidd: 1
 _iconservices: 1
-Всего памяти используется: 63.7%
-Всего CPU используется: 39.5%
-Больше всего памяти использует: /Applications/PyChar
-Больше всего CPU использует: /Library/Frameworks/
+_hidd: 1
+_captiveagent: 1
+_datadetectors: 1
+_netbios: 1
+_gamecontrollerd: 1
+Всего памяти используется: 57.4%
+Всего CPU используется: 101.1%
+Больше всего памяти использует: Все процессы = 0
+Больше всего CPU использует: Все процессы = 0

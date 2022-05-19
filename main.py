@@ -7,10 +7,10 @@ def capture_ps_aux():
 
 
 def listing(text):
-    text_split = text.split("\n")
+    list_of_lines = text.split("\n")
     list_of_list = []
-    for i in range(len(text_split)):
-        list_of_list.append([j for j in text_split[i].split(" ") if j != ''])
+    for i in range(len(list_of_lines)):
+        list_of_list.append([j for j in list_of_lines[i].split(" ") if j != ''])
     return list_of_list
 
 
@@ -18,7 +18,8 @@ def calculate(list_of_list):
     user_dict = {}
     num_of_process = 0
     max_cpu, max_mem = 0.0, 0.0
-    performance = {'sum_cpu': 0.0, 'sum_mem': 0.0, 'max_cpu_command': [], 'max_mem_command': []}
+    performance = {'sum_cpu': 0.0, 'sum_mem': 0.0,
+                   'max_cpu_command': ['Все процессы = 0'], 'max_mem_command': ['Все процессы = 0']}
 
     for i in range(1, len(list_of_list)-1):
         current_list = list_of_list[i]
@@ -39,10 +40,10 @@ def calculate(list_of_list):
 
         if cur_cpu > max_cpu:
             max_cpu = cur_cpu
-            performance['max_cpu_command'] = current_list[10:]
+            performance['max_cpu_command'] = ' '.join(current_list[10:])
         if cur_mem > max_mem:
             max_mem = cur_mem
-            performance['max_mem_command'] = current_list[10:]
+            performance['max_mem_command'] = ' '.join(current_list[10:])
 
     users_processes = {k: v for k, v in reversed(sorted(user_dict.items(), key=lambda item: item[1]))}
     return users_processes, num_of_process, performance
@@ -71,8 +72,7 @@ def write_to_file(text):
 
 
 if __name__ == '__main__':
-    result_of_capture = capture_ps_aux()
-    result_of_listing = listing(result_of_capture)
+    result_of_listing = listing(capture_ps_aux())
     process_dict, num, performance_dict = calculate(result_of_listing)
     final_text = final_text_fun(process_dict, num, performance_dict)
     write_to_file(final_text)
