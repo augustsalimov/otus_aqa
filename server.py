@@ -19,6 +19,9 @@ def main():
             print("\nConnection from", r_address)
             while True:
                 received_text = conn.recv(1024).decode('utf-8')
+                if not received_text:
+                    print(f"No data from {r_address}")
+                    break
 
                 print(f'Received:\n\n {received_text} \n\n')
 
@@ -50,12 +53,8 @@ def main():
                     body
                 ])
 
-                if received_text:
-                    print("Sending data back to the client")
-                    conn.send(response.encode('utf-8'))
-                else:
-                    print(f"No data from {r_address}")
-                    break
+                print("Sending data back to the client")
+                conn.send(response.encode('utf-8'))
             conn.close()
 
 
