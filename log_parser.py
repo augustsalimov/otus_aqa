@@ -2,88 +2,86 @@ import argparse
 import re
 import json
 import os
+from datetime import datetime
 from collections import defaultdict
 
 
 def parse():
-    # parsing argument from cli
     parser = argparse.ArgumentParser(description='Process access.log')
-    parser.add_argument('-f', dest='file', action='store', help='Path to logfile')
-    return parser.parse_args()
+    parser.add_argument('-p', dest='path', action='store', help='Path to logfile')
+    args = parser.parse_args()
+    return args.path
 
 
 def dir_to_files(my_path):
-    # return couple files in dir
-    return next(os.walk(my_path), (None, None, []))[2]
+    return os.listdir(my_path)
 
 
-def main(args):
-    amount_of_lines = 0
-    # ip: number of uses
+def main(path):
+    amount_of_requests = 0
     ip_dict = defaultdict(lambda: 0)
-    # methods: amount of uses
     method_dict = {"GET": 0, "POST": 0, "PUT": 0, "DELETE": 0, "HEAD": 0}
+    list_of_longest_requests = [{"duration": 0}]
 
-    longest_request = defaultdict(
-        lambda: {"ip": '', "method": '', "url": '', "datetime": ''})
-    request = {"ip": '', "method": '', "url": '', "datetime": '', "duration": ''}
-    list_of_longest_requests = []
-    # supportive list
-    support = [0, 0, 0]
-
-    with open(args.file) as lines:
+    with open(path) as lines:
         for line in lines:
-            ip_match = re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', line)
-            if ip_match is not None:
-                ip = ip_match.group()
+            ip = re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', line)
+            method = re.search(r'] "(POST|GET|PUT|DELETE|HEAD)', line)
+
+            if ip and method is not None:
+                ip = ip.group()
                 ip_dict[ip] += 1
+                method = method.group(1)
+                method_dict[method] += 1
 
-                method = re.search(r'] "(POST|GET|PUT|DELETE|HEAD)', line)
-                if method is not None:
-                    method = method.group(1)
-                    method_dict[method] += 1
+                try:
+                    duration = re.search(r'\d{4,5}$', line)
+                    duration = int(duration.group())
 
-                    duration = re.search(r'" \d{4,5}', line)
+                    if duration > list_of_longest_requests[0]['duration']:
+                        try:
+                            datetime_ = re.search(r'\d{1,2}/\S*\s\+\d{1,4}', line).group()
+                        except AttributeError:
+                            datetime_ = ''
+                        try:
+                            url = re.search(r'http://\S*/', line).group()
+                        except AttributeError:
+                            url = ''
 
-                    if duration is not None:
-                        duration = int(duration.group()[2:])
-                        if duration > support[0]:
-                            datetime = \
-                                re.search(r'\d{1,2}/\w{2,4}/\d{4}:\d{1,2}:\d{1,2}:\d{1,2} \+\d{1,4}', line).group()
-                            request["ip"] = ip
-                            request["method"] = method
-                            request["datetime"] = datetime
-                            request["duration"] = duration
+                        request = {"ip": ip, "method": method, "url": url, "datetime": datetime_, "duration": duration}
+                        list_of_longest_requests.append(request)
 
-                            list_of_longest_requests.append(request)
+                        if len(list_of_longest_requests) > 3:
+                            del list_of_longest_requests[0]
+                except AttributeError:
+                    pass
 
-                            if len(list_of_longest_requests) > 3:
-                                del list_of_longest_requests[0]
-                            support[0] = duration
-                            support = sorted(support)
-                amount_of_lines += 1
+                amount_of_requests += 1
 
-    # ip dict to top ip dict
-    ip_dict = {k: v for k, v in sorted(ip_dict.items(), key=lambda item: item[1])}
-    support = sorted({v: k for k, v in ip_dict.items()}, reverse=True)[:3]
-    top_ip = {k: v for k, v in ip_dict.items() if v in support}
-
-    return {"top_ips": top_ip, "top_longest": list_of_longest_requests, "total_stat": method_dict, "total_requests": amount_of_lines}
+    return {"top_ips": dict_to_top_dict(ip_dict), "top_longest": list_of_longest_requests,
+            "total_stat": method_dict, "total_requests": amount_of_requests}
 
 
 def output(json_):
-    with open('json_file.json', 'w', encoding='utf-8') as f:
+    with open(f'json_file_{datetime.now()}.json', 'w', encoding='utf-8') as f:
         json.dump(json_, f, indent=4)
     print(json.dumps(json_, indent=4))
 
 
+# helpers
+def dict_to_top_dict(ip_dict):
+    ip_dict = {k: v for k, v in sorted(ip_dict.items(), key=lambda item: item[1])}
+    support = sorted({v: k for k, v in ip_dict.items()}, reverse=True)[:3]
+    return {k: v for k, v in ip_dict.items() if v in support}
+
+
 if __name__ == "__main__":
-    result_of_parsing = parse()
-    out = ''
-    if os.path.isdir(str(result_of_parsing)):
-        files = dir_to_files(result_of_parsing)
+    path_ = parse()
+    if os.path.isdir(path_):
+        files = dir_to_files(path_)
         for file in files:
-            out = main(file)
+            file_path = os.path.join(path_, file)
+            if os.path.isfile(file_path) and '.log' in file:
+                output(main(file_path))
     else:
-        out = main(result_of_parsing)
-    output(out)
+        output(main(path_)) if '.log' in path_ else print('Please choose log file')
