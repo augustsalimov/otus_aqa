@@ -20,13 +20,14 @@ def dir_to_files(my_path):
 def main(path):
     amount_of_requests = 0
     ip_dict = defaultdict(lambda: 0)
-    method_dict = {"GET": 0, "POST": 0, "PUT": 0, "DELETE": 0, "HEAD": 0}
-    list_of_longest_requests = [{"duration": 0}]
+    method_dict = {"GET": 0, "POST": 0, "HEAD": 0, "PUT": 0, "OPTIONS": 0, "DELETE": 0}
+    list_of_longest_requests = []
+    support = [0, 0, 0]
 
     with open(path) as lines:
         for line in lines:
             ip = re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', line)
-            method = re.search(r'] "(POST|GET|PUT|DELETE|HEAD)', line)
+            method = re.search(r'] "(POST|GET|PUT|DELETE|HEAD|OPTIONS)', line)
 
             if ip and method is not None:
                 ip = ip.group()
@@ -38,7 +39,7 @@ def main(path):
                     duration = re.search(r'\d{4,5}$', line)
                     duration = int(duration.group())
 
-                    if duration > list_of_longest_requests[0]['duration']:
+                    if duration > support[0]:
                         try:
                             datetime_ = re.search(r'\d{1,2}/\S*\s\+\d{1,4}', line).group()
                         except AttributeError:
@@ -50,6 +51,8 @@ def main(path):
 
                         request = {"ip": ip, "method": method, "url": url, "datetime": datetime_, "duration": duration}
                         list_of_longest_requests.append(request)
+                        support[0] = duration
+                        support.sort()
 
                         if len(list_of_longest_requests) > 3:
                             del list_of_longest_requests[0]
